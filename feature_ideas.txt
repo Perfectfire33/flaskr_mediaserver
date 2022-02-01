@@ -1,0 +1,46 @@
+MoSCoW   |  Done?     | Component  |     Task                        |
+---------|------------|------------|---------------------------------|
+M               [X]     Store           Create an item
+M               [ ]     Store           Delete an item
+M               [ ]     Store           Update an item
+M               [X]     Store           Vew a list of all items
+
+
+M               [X]     pcParts         Central URL dashboard
+M               [X]     pcParts         View a list of all parts
+M               [X]     pcParts         View a part's details
+M               [X]     pcParts         Create a part
+M               [X]     pcParts         Update a part
+M               [X]     pcParts         Delete a part
+
+M               [X]     pcParts         Create a build
+M               [X]     pcParts         Select a build upon part creation
+W               [S]     pcParts         Add a part upon build creation
+M               [ ]     pcParts         Update a build
+M               [ ]     pcParts         Delete a build
+M               [X]     pcParts         View a list of all builds
+
+M               [ ]     pcParts         Flag a part is for sale on what platform
+S               [ ]     pcParts         Identify who is selling a part
+
+
+
+M               [ ]     pcParts         View a list of benchmarks
+M               [ ]     pcParts         Update a benchmark
+M               [ ]     pcParts         Create a benchmark
+M               [ ]     pcParts         Delete a benchmark
+W               [S]     pcParts         Add a benchmark upon build creation             benchmark is part of a build in GUI
+W               [S]     pcParts         Select a build upon benchmark creation          benchmark is simply name and type
+
+
+M               [ ]     General         Preview a list of uploaded file names
+S               [ ]     General         Preview pictures
+
+
+
+
+TODO LIST:
+
+1| Forms/Python - Update part details list for all parts (currently set to only SSD)
+2| Forms/Python - Add update part to all parts (currently only SSD)
+3| GUI - Create required fields on parts
