@@ -1,5 +1,5 @@
 run in command prompt before running app:
-SET FLASK_APP=C:\Users\Joseph\Documents\GitHub\flaskr\flaskr.py
+SET FLASK_APP=C:\Users\Joseph\Documents\GitHub\flaskr_mediaserver\flaskr.py
 
 then init the db:
 flask initdb
