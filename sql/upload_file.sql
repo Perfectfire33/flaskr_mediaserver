@@ -1,7 +1,7 @@
 INSERT INTO file
         (
          file_name,
-         file_data
+         file_today_date
          )
         VALUES (
                 ?,

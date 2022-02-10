@@ -26,7 +26,7 @@ drop table if exists file;
 create table file (
   file_id integer primary key autoincrement,
   file_name text,
-  file_data BINARY
+  file_today_date text
 );
 
 --Item Condition for a particular item

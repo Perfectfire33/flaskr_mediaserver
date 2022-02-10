@@ -1,5 +1,6 @@
 # all the imports
-import os
+import os, time
+from datetime import date
 import sqlite3
 import sys
 from flask import Flask, request, session, g, redirect, url_for, abort, \
@@ -12,7 +13,8 @@ from werkzeug.utils import secure_filename
 UPLOAD_FOLDER = 'c:/Users/Joseph/Downloads/Media_Server_Upload'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 DOWNLOAD_DIRECTORY = 'c:/Users/Joseph/Downloads/Media_Server_Upload'
-
+WORK_DIRECTORY = 'c:/Users/Joseph/Documents/GitHub/flaskr_mediaserver/'
+SQL_DIRECTORY = 'sql/'
 
 # create our little application :)
 app = Flask(__name__)
@@ -27,7 +29,7 @@ app.config.update(dict(
 ))
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 
-
+# Called in
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -128,25 +130,27 @@ def dashboard():
 
 #Select all files and display webpage
 @app.route('/mediaserver_list')
-def mediaserver_list():
-        sql_string = open('sql/select_all_pcparts.sql', 'r').read()
-        db = get_db()
-        cur = db.execute(sql_string)
-        items = cur.fetchall()
-        abc = db.execute('PRAGMA foreign_keys')
-        abcX = abc.fetchall()
-        print("FOREIGN KEY STATUS:")
-        print(abcX)
-        print("-----------------------")
-        abc = db.execute('PRAGMA foreign_keys=ON')
-        abc = db.execute('PRAGMA foreign_keys')
-        abcY = abc.fetchall()
-        print("FOREIGN KEY STATUS:")
-        print(abcY)
-        print("-----------------------")
-        #Display the page
-        #   items ==> list of columns and respective rows for all PC parts
-        return render_template('pcparts_list.html', items=items)
+def mediaserver_file_list():
+        #Get array of files and folders in the download directory
+        files_and_folders = os.listdir(DOWNLOAD_DIRECTORY)
+        print("AAAAAAA")
+        print(files_and_folders)
+        print("AAAAAAA")
+        print("AAAAAAA")
+        print(files_and_folders)
+        print("AAAAAAA")
+
+        #Create array to store date.time of files in download directory
+        files_creation_time = []
+
+        for file in files_and_folders:
+            path_of_file = DOWNLOAD_DIRECTORY + "/" + file
+            print("last modified: %s" % time.ctime(os.path.getctime(path_of_file)))
+            files_creation_time.append(time.ctime(os.path.getctime(path_of_file)))
+            #print("created: %s" % time.ctime(os.path.getctime(file)))
+
+        #return render_template('mediaserver_file_list.html', files_and_folders=files_and_folders)
+        return render_template('dashboard.html')
 
 
 
@@ -172,7 +176,22 @@ def pcparts_list():
         #   items ==> list of columns and respective rows for all PC parts
         return render_template('pcparts_list.html', items=items)
         
-        
+
+
+""" ---------------- ---------------- Delete Part ---------------- ----------------"""
+@app.route('/mediaserver_delete_part', methods=['POST'])
+def mediaserver_delete_part():
+
+        # Need OS operations to locate the part to delete it instead of SQL
+        sql_string = open('sql/delete_part.sql', 'r').read()
+        db = get_db()
+        abc = db.execute('PRAGMA FOREIGN_KEYS=ON')
+        db.execute(sql_string,[request.form['part_to_delete']])
+        db.commit()
+        flash('Part deleted from database!')
+        return redirect(url_for('pcparts_list'))
+
+
 #Select all builds and display webpage
 @app.route('/pcparts_listBuilds')
 def pcparts_listBuilds():
@@ -434,6 +453,7 @@ def pcparts_addPart():
         return render_template('pcparts_addPart.html', pcBuildList=pcBuildList)
 
 
+
 # Display Form - Add a New File
 @app.route('/mediaserver_addFile.html', methods=['GET', 'POST'])
 def mediaserver_addFiles():
@@ -442,10 +462,16 @@ def mediaserver_addFiles():
     return render_template('mediaserver_addFile.html')
 
 
+
 # Submit POST - Add a New File
 # This is the executive command (not browsable web page)
 @app.route('/mediaserver_addFile', methods=['GET', 'POST'])
 def add_file():
+    if not session.get('logged_in'):
+        abort(401)
+
+
+
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
@@ -460,7 +486,17 @@ def add_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+            # Need to add file and file info to sqlite database
+            db = get_db()
+            #sql_string = open('c:/Users/Joseph/Documents/GitHub/flaskr_mediaserver/sql/upload_file.sql', 'r').read()
+            sql_string = open(WORK_DIRECTORY + SQL_DIRECTORY + 'upload_file.sql', 'r').read()
+            db.execute(sql_string, [filename,
+                                    date.today()
+                                ])
+            db.commit()
             return redirect(url_for('add_file', name=filename))
+
     return render_template('mediaserver_addFile.html')
 
 #Submit POST - Add a New File

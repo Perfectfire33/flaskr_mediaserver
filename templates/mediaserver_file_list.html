@@ -1,9 +1,9 @@
 {% extends "layout.html" %}
 {% block body %}
   <ul class=items>
-  {% for item in items %}
+  {% for file_and_folder in files_and_folders %}
     <li>
-        <h2>Part Name: <a href="{{ url_for('part_details', pcPartId=item.pcPart_id, pcPartType=item.pcPart_type) }}">{{ item.pcPart_name }}</a></h2>
+        <h2>Part Name: <a href="{{ url_for('get_file', pcPartId=item.pcPart_id, pcPartType=item.pcPart_type) }}">{{ item.pcPart_name }}</a></h2>
         <dl>
                 <dt><b>Part Type:</b> {{ item.pcPart_type|safe }}
                 <dt><b>Part Model Number:</b> {{ item.pcPart_modelNumber }}
@@ -18,13 +18,9 @@
                 <dt><b>Part Age:</b> {{ item.pcPart_age }} years
                 <dd>
         </dl>
-        <form action="{{ url_for('delete_part') }}" method=post class=add-item>
+        <form action="{{ url_for('mediaserver_delete_part') }}" method=post class=add-item>
                 <input type=hidden name=part_to_delete value="{{ item.pcPart_id }}"></input>
                 <input type=submit value="Delete"></input>
-        </form>
-        <form action="{{ url_for('display_update_part') }}" method=post class=add-item>
-                <input type=hidden name=part_to_update value="{{ item.pcPart_id }}"></input>
-                <input type=submit value="Edit"></input>
         </form>
   {% else %}
     <li>
