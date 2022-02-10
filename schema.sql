@@ -20,6 +20,15 @@ create table item (
   item_insertDate datetime
 );
 
+
+--Basic info about an item
+drop table if exists file;
+create table file (
+  file_id integer primary key autoincrement,
+  file_name text,
+  file_data BINARY
+);
+
 --Item Condition for a particular item
 drop table if exists itemCondition;
 create table itemCondition (

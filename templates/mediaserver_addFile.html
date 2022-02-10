@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block body %}
+  {% if session.logged_in %}
+    <!-- url_for - is name of definition called upon form action -->
+    <form action="{{ url_for('add_file') }}" method=post class=add-item enctype="multipart/form-data">
+      <dl>
+        <dt>File Upload:
+        <dd><input type=file style='width:92%' name=file>
+        <dt>Add File:
+        <dd><input type=submit value=Submit>
+      </dl>
+    </form>
+  {% endif %}
+{% endblock %}

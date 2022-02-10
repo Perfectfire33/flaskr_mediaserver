@@ -1,14 +1,23 @@
 # all the imports
 import os
 import sqlite3
+import sys
 from flask import Flask, request, session, g, redirect, url_for, abort, \
-     render_template, flash
+     render_template, flash, send_from_directory
+from werkzeug.utils import secure_filename
+
+
 
 """ ---------------- ---------------- App Init ---------------- ---------------- """
+UPLOAD_FOLDER = 'c:/Users/Joseph/Downloads/Media_Server_Upload'
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+DOWNLOAD_DIRECTORY = 'c:/Users/Joseph/Downloads/Media_Server_Upload'
+
+
 # create our little application :)
 app = Flask(__name__)
 app.config.from_object(__name__)
-
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # Load default config and override config from an environment variable
 app.config.update(dict(
     DATABASE=os.path.join(app.root_path, 'flaskr.db'),
@@ -17,6 +26,22 @@ app.config.update(dict(
     PASSWORD='testing'
 ))
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@app.route('/get-files/<path:path>',methods = ['GET','POST'])
+def get_files(path):
+
+    """Download a file."""
+    try:
+        return send_from_directory(DOWNLOAD_DIRECTORY, path, as_attachment=True)
+    except FileNotFoundError:
+        abort(404)
+
 
 """ ---------------- ---------------- Database Functions ---------------- ---------------- """
 def connect_db():
@@ -80,7 +105,7 @@ def logout():
 #Upload
 @app.route("/upload", methods=["POST"])
 def upload():
-    uploaded_files = flask.request.files.getlist("file[]")
+    uploaded_files = request.files.getlist("file[]")
     print(uploaded_files)
     return ""
     
@@ -100,6 +125,31 @@ def dashboard():
     return render_template('dashboard.html')
     
 """ ---------------- ---------------- List Parts ---------------- ---------------- """
+
+#Select all files and display webpage
+@app.route('/mediaserver_list')
+def mediaserver_list():
+        sql_string = open('sql/select_all_pcparts.sql', 'r').read()
+        db = get_db()
+        cur = db.execute(sql_string)
+        items = cur.fetchall()
+        abc = db.execute('PRAGMA foreign_keys')
+        abcX = abc.fetchall()
+        print("FOREIGN KEY STATUS:")
+        print(abcX)
+        print("-----------------------")
+        abc = db.execute('PRAGMA foreign_keys=ON')
+        abc = db.execute('PRAGMA foreign_keys')
+        abcY = abc.fetchall()
+        print("FOREIGN KEY STATUS:")
+        print(abcY)
+        print("-----------------------")
+        #Display the page
+        #   items ==> list of columns and respective rows for all PC parts
+        return render_template('pcparts_list.html', items=items)
+
+
+
 #Select all parts and display webpage
 @app.route('/pcparts_list')
 def pcparts_list():
@@ -381,15 +431,75 @@ def add_build():
 def pcparts_addPart():
         pcBuildList = get_pcBuildList()
         
-        return render_template('pcparts_addPart.html', pcBuildList=pcBuildList) 
-    
+        return render_template('pcparts_addPart.html', pcBuildList=pcBuildList)
+
+
+# Display Form - Add a New File
+@app.route('/mediaserver_addFile.html', methods=['GET', 'POST'])
+def mediaserver_addFiles():
+    #pcBuildList = get_pcBuildList()
+
+    return render_template('mediaserver_addFile.html')
+
+
+# Submit POST - Add a New File
+# This is the executive command (not browsable web page)
+@app.route('/mediaserver_addFile', methods=['GET', 'POST'])
+def add_file():
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # If the user does not select a file, the browser submits an
+        # empty file without a filename.
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect(url_for('add_file', name=filename))
+    return render_template('mediaserver_addFile.html')
+
+#Submit POST - Add a New File
+#@app.route('/mediaserver_addFile', methods=['GET', 'POST'])
+#def add_file():
+#    if not session.get('logged_in'):
+#        abort(401)
+#
+#    db = get_db()
+#    sql_string = open('c:/Users/Joseph/Documents/GitHub/flaskr_mediaserver/sql/upload_file.sql', 'r').read()
+#    db.execute(sql_string, [request.form['file_name'],
+#                            request.form['file_data']
+#                            ])
+#    db.commit()
+#
+    #return redirect(url_for('dashboard'))
+    #return render_template('dashboard.html')
+#    return render_template('mediaserver_addFile.html')
+
+
+
+
+
 #Submit POST - Add a New Part
 @app.route('/pcpart_add_part', methods=['GET', 'POST'])
 def add_part():
     if not session.get('logged_in'):
         abort(401)
-        
-    sql_string = open('sql/insert_part.sql', 'r').read()
+
+    #abc = "C:\Users\Joseph\Documents\GitHub"
+    #abc2 = '\flaskr_mediaserver'
+    #print(os.listdir("C:\Users\Joseph\Documents\GitHub\flaskr_mediaserver"))
+    #ebde = sys.argv[0]
+    #print(ebde)
+    abc2 = '\{\}flaskr_mediaserver'
+    for f in os.listdir('c:/Users/Joseph/Documents/GitHub/flaskr_mediaserver'):
+        print(f)
+
+    sql_string = open('c:/Users/Joseph/Documents/GitHub/flaskr_mediaserver/sql/insert_part.sql', 'r').read()
     request_string = ""
     db = get_db()
     abc = db.execute('PRAGMA foreign_keys=ON')
