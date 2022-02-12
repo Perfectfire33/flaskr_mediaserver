@@ -128,9 +128,18 @@ def dashboard():
     
 """ ---------------- ---------------- List Parts ---------------- ---------------- """
 
+"""
+Use DB to store filenames and folders
+get filenames and folders using DB select when displaying webpage
+"""
+
 #Select all files and display webpage
 @app.route('/mediaserver_list')
 def mediaserver_file_list():
+        # sql_string = open('sql/select_all_pcparts.sql', 'r').read()
+
+        #Need to insert into sql folder hiearchy of file (add column to db: file_path
+
         #Get array of files and folders in the download directory
         files_and_folders = os.listdir(DOWNLOAD_DIRECTORY)
         print("AAAAAAA")
@@ -140,6 +149,10 @@ def mediaserver_file_list():
         print(files_and_folders)
         print("AAAAAAA")
 
+        #sql_string = open('sql/select_all_pcparts.sql', 'r').read()
+
+        #Will use this for later (will have to build path_of_file from SQL select statement)
+        #Only if we need creation time (c) or modified time (m) from the OS when file is being downloaded
         #Create array to store date.time of files in download directory
         files_creation_time = []
 
@@ -182,7 +195,7 @@ def pcparts_list():
 @app.route('/mediaserver_delete_part', methods=['POST'])
 def mediaserver_delete_part():
 
-        # Need OS operations to locate the part to delete it instead of SQL
+        # Need OS operations to locate the file to delete it instead of SQL
         sql_string = open('sql/delete_part.sql', 'r').read()
         db = get_db()
         abc = db.execute('PRAGMA FOREIGN_KEYS=ON')
@@ -484,6 +497,15 @@ def add_file():
             flash('No selected file')
             return redirect(request.url)
         if file and allowed_file(file.filename):
+            # insert file path here
+
+
+
+            #Join the folder_hierarchy to the upload folder
+            #filepath_folders = os.path.join(app.config['UPLOAD_FOLDER'], folder_hierarchy)
+            
+            filepath = ""
+
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
@@ -492,6 +514,7 @@ def add_file():
             #sql_string = open('c:/Users/Joseph/Documents/GitHub/flaskr_mediaserver/sql/upload_file.sql', 'r').read()
             sql_string = open(WORK_DIRECTORY + SQL_DIRECTORY + 'upload_file.sql', 'r').read()
             db.execute(sql_string, [filename,
+                                    filepath,
                                     date.today()
                                 ])
             db.commit()
