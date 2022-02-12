@@ -497,16 +497,14 @@ def add_file():
             flash('No selected file')
             return redirect(request.url)
         if file and allowed_file(file.filename):
-            # insert file path here
 
-
-
-            #Join the folder_hierarchy to the upload folder
-            #filepath_folders = os.path.join(app.config['UPLOAD_FOLDER'], folder_hierarchy)
-            
-            filepath = ""
 
             filename = secure_filename(file.filename)
+
+            # insert file path here
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+            # save the file to the OS' hard drive
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
             # Need to add file and file info to sqlite database
