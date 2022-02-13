@@ -137,8 +137,13 @@ get filenames and folders using DB select when displaying webpage
 @app.route('/mediaserver_list')
 def mediaserver_file_list():
         # sql_string = open('sql/select_all_pcparts.sql', 'r').read()
-
+        sql_string = open(WORK_DIRECTORY + SQL_DIRECTORY + 'select_mediaserver_file_list.sql', 'r').read()
         #Need to insert into sql folder hiearchy of file (add column to db: file_path
+
+
+        db = get_db()
+        cur = db.execute(sql_string)
+        items = cur.fetchall()
 
         #Get array of files and folders in the download directory
         files_and_folders = os.listdir(DOWNLOAD_DIRECTORY)
@@ -149,7 +154,7 @@ def mediaserver_file_list():
         print(files_and_folders)
         print("AAAAAAA")
 
-        #sql_string = open('sql/select_all_pcparts.sql', 'r').read()
+
 
         #Will use this for later (will have to build path_of_file from SQL select statement)
         #Only if we need creation time (c) or modified time (m) from the OS when file is being downloaded
@@ -163,7 +168,7 @@ def mediaserver_file_list():
             #print("created: %s" % time.ctime(os.path.getctime(file)))
 
         #return render_template('mediaserver_file_list.html', files_and_folders=files_and_folders)
-        return render_template('dashboard.html')
+        return render_template('mediaserver_file_list.html', items=items)
 
 
 
@@ -191,18 +196,49 @@ def pcparts_list():
         
 
 
-""" ---------------- ---------------- Delete Part ---------------- ----------------"""
-@app.route('/mediaserver_delete_part', methods=['POST'])
-def mediaserver_delete_part():
+@app.route('/mediaserver_download_file', methods=['POST'])
+def mediaserver_download_file():
 
         # Need OS operations to locate the file to delete it instead of SQL
         sql_string = open('sql/delete_part.sql', 'r').read()
         db = get_db()
         abc = db.execute('PRAGMA FOREIGN_KEYS=ON')
-        db.execute(sql_string,[request.form['part_to_delete']])
+        db.execute(sql_string,[request.form['file_to_delete']])
         db.commit()
-        flash('Part deleted from database!')
-        return redirect(url_for('pcparts_list'))
+        flash('File deleted from database!')
+        return redirect(url_for('mediaserver_file_list'))
+
+
+""" ---------------- ---------------- Delete Part ---------------- ----------------"""
+@app.route('/mediaserver_delete_file', methods=['POST'])
+def mediaserver_delete_file():
+
+        # Need OS operations to locate the file to delete it instead of SQL
+        # save the file to the OS' hard drive
+        # file.delete(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        sql_string = open(WORK_DIRECTORY + SQL_DIRECTORY + 'select_fileToDelete.sql', 'r').read()
+        db = get_db()
+        filepath_of_file_to_delete = db.execute(sql_string,[request.form['file_to_delete']])
+        #print(filepath_of_file_to_delete)
+        db_files = filepath_of_file_to_delete.fetchall()
+        #print("db_files.file_id")
+        #print(db_files[0][0])
+        #print("db_files.file_id")
+        os.remove(db_files[0][0])
+
+        sql_string = open(WORK_DIRECTORY + SQL_DIRECTORY + 'delete_file.sql', 'r').read()
+
+        #abc = db.execute('PRAGMA FOREIGN_KEYS=ON')
+        db.execute(sql_string,[request.form['file_to_delete']])
+        db.commit()
+        flash('File data deleted from database and file deleted from Operating System!')
+        return redirect(url_for('mediaserver_file_list'))
+
+
+# save the file to the OS' hard drive
+#file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+
 
 
 #Select all builds and display webpage
@@ -501,7 +537,7 @@ def add_file():
 
             filename = secure_filename(file.filename)
 
-            # insert file path here
+            # insert file path here (also includes file name)
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 
             # save the file to the OS' hard drive

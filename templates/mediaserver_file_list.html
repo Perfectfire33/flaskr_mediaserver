@@ -1,25 +1,20 @@
 {% extends "layout.html" %}
 {% block body %}
   <ul class=items>
-  {% for file_and_folder in files_and_folders %}
+  {% for item in items %}
     <li>
-        <h2>Part Name: <a href="{{ url_for('get_file', pcPartId=item.pcPart_id, pcPartType=item.pcPart_type) }}">{{ item.pcPart_name }}</a></h2>
+        <h2>File Name:</h2> {{ item.file_name }}
         <dl>
-                <dt><b>Part Type:</b> {{ item.pcPart_type|safe }}
-                <dt><b>Part Model Number:</b> {{ item.pcPart_modelNumber }}
-                <dt><b>Part Price:</b> ${{ item.pcPart_price }}
-                <dt><b>Part Description:</b>
-                <dd>{{ item.pcPart_desc }}
-                <dt><b>Part Brand:</b> {{ item.pcPart_brand }}
-                <dt><b>Part Condition:</b>
-                <dd>{{ item.pcPart_condition }}
-                <dt><b>Part Notes:</b>
-                <dd>{{ item.pcPart_notes }}
-                <dt><b>Part Age:</b> {{ item.pcPart_age }} years
+                <dt><b>File path on server:</b> {{ item.file_path }}
+                <dt><b>File Today Date:</b> {{ item.file_today_date }}
                 <dd>
         </dl>
-        <form action="{{ url_for('mediaserver_delete_part') }}" method=post class=add-item>
-                <input type=hidden name=part_to_delete value="{{ item.pcPart_id }}"></input>
+        <form action="{{ url_for('mediaserver_download_file') }}" method=post class=add-item>
+                <input type=hidden name=file_to_download value="{{ item.file_id }}"></input>
+                <input type=submit value="Download"></input>
+        </form>
+        <form action="{{ url_for('mediaserver_delete_file') }}" method=post class=add-item>
+                <input type=hidden name=file_to_delete value="{{ item.file_id }}"></input>
                 <input type=submit value="Delete"></input>
         </form>
   {% else %}

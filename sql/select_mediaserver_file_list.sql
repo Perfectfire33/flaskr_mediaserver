@@ -1,1 +1,1 @@
-SELECT file_file
+SELECT * FROM file
