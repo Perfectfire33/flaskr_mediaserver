@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
   {% if session.logged_in %}
+
     <!-- url_for - is name of definition called upon form action -->
     <form action="{{ url_for('add_file') }}" method=post class=add-item enctype="multipart/form-data">
       <dl>
@@ -10,5 +11,8 @@
         <dd><input type=submit value=Submit>
       </dl>
     </form>
+    </br>
+    <a href="{{ url_for('mediaserver_file_list') }}">View Files</a>
+    </br>
   {% endif %}
 {% endblock %}
