@@ -35,14 +35,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@app.route('/get-files/<path:path>',methods = ['GET','POST'])
-def get_files(path):
 
-    """Download a file."""
-    try:
-        return send_from_directory(DOWNLOAD_DIRECTORY, path, as_attachment=True)
-    except FileNotFoundError:
-        abort(404)
 
 
 """ ---------------- ---------------- Database Functions ---------------- ---------------- """
@@ -194,18 +187,31 @@ def pcparts_list():
         #   items ==> list of columns and respective rows for all PC parts
         return render_template('pcparts_list.html', items=items)
         
-
+#@app.route('/get-files/<path:path>',methods = ['GET','POST'])
+#def get_files(path):
+#
+#    """Download a file."""
+#    try:
+#        return send_from_directory(DOWNLOAD_DIRECTORY, path, as_attachment=True)
+#    except FileNotFoundError:
+#        abort(404)
 
 @app.route('/mediaserver_download_file', methods=['POST'])
 def mediaserver_download_file():
 
-        # Need OS operations to locate the file to delete it instead of SQL
-        sql_string = open('sql/delete_part.sql', 'r').read()
+        # Select from DB the file (find filename, return row)
+        sql_string = open(WORK_DIRECTORY + SQL_DIRECTORY + 'select_fileToDownload.sql', 'r').read()
         db = get_db()
-        abc = db.execute('PRAGMA FOREIGN_KEYS=ON')
-        db.execute(sql_string,[request.form['file_to_delete']])
-        db.commit()
-        flash('File deleted from database!')
+        #abc = db.execute('PRAGMA FOREIGN_KEYS=ON')
+        file = db.execute(sql_string,[request.form['file_to_download']])
+        #db.commit()
+        DownloadFileList = file.fetchall()
+        try:
+            return send_from_directory(DOWNLOAD_DIRECTORY, DownloadFileList[0][1], as_attachment=True)
+        except FileNotFoundError:
+            abort(404)
+
+        flash('File downloaded from OS disk!')
         return redirect(url_for('mediaserver_file_list'))
 
 
@@ -553,6 +559,9 @@ def add_file():
                                 ])
             db.commit()
             return redirect(url_for('add_file', name=filename))
+
+        else:
+            flash('File extension not supported!')
 
     return render_template('mediaserver_addFile.html')
 
