@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block body %}
+  {% if session.logged_in %}
+    <b>Upload File path on server:</b> {{ default_upload_path[0].settings_uploadFilePath }}
+
+    <form action="{{ url_for('mediaserver_save_settings') }}" method=post class=add-item">
+      <dl>
+        <dt>Save Location on Server:
+        <dd><input type=text style='width:92%' name=server_file_path>
+        <dt>Save Settings:
+        <dd><input type=submit value=Submit>
+      </dl>
+    </form>
+    {% endif %}
+{% endblock %}

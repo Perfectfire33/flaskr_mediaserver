@@ -6,20 +6,22 @@ import sys
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, send_from_directory
 from werkzeug.utils import secure_filename
-
+from flask_script import Manager, Server
 
 
 """ ---------------- ---------------- App Init ---------------- ---------------- """
 UPLOAD_FOLDER = 'c:/Users/Joseph/Downloads/Media_Server_Upload'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
-DOWNLOAD_DIRECTORY = 'c:/Users/Joseph/Downloads/Media_Server_Upload'
+DOWNLOAD_FROM_DIRECTORY = 'c:/Users/Joseph/Downloads/Media_Server_Upload'
 WORK_DIRECTORY = 'c:/Users/Joseph/Documents/GitHub/flaskr_mediaserver/'
 SQL_DIRECTORY = 'sql/'
 
 # create our little application :)
 app = Flask(__name__)
+
 app.config.from_object(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['DOWNLOAD_FROM_DIRECTORY'] = DOWNLOAD_FROM_DIRECTORY
 # Load default config and override config from an environment variable
 app.config.update(dict(
     DATABASE=os.path.join(app.root_path, 'flaskr.db'),
@@ -73,6 +75,9 @@ def initdb_command():
     print('Initialized the database.')
 
 
+
+
+
 """ ---------------- ---------------- General Functions ---------------- ---------------- """
 #Login
 @app.route('/login', methods=['GET', 'POST'])
@@ -118,7 +123,42 @@ def get_next_row(currentTable):
 @app.route('/')
 def dashboard():
     return render_template('dashboard.html')
-    
+
+
+
+#Show the settings page
+# Need to add in DB: a table and place to put the settings like file server save location
+@app.route('/mediaserver_settings', methods=['GET', 'POST'])
+def mediaserver_settings():
+    db = get_db()
+    sql_string = open(WORK_DIRECTORY + SQL_DIRECTORY + 'select_settings.sql', 'r').read()
+    cur = db.execute(sql_string)
+    default_upload_path = cur.fetchall()
+    print("default_upload_path")
+    print(default_upload_path[0])
+    print("default_upload_path")
+    return render_template('mediaserver_settings.html', default_upload_path=default_upload_path)
+
+
+@app.route('/save_settings', methods=['POST'])
+def mediaserver_save_settings():
+    # add db stuff here to add the save location to db
+    # or can use a text file to store the data
+    # then need to retrieve the save location for use
+    db = get_db()
+    sql_string = open(WORK_DIRECTORY + SQL_DIRECTORY + 'delete_settings.sql', 'r').read()
+    db.execute(sql_string)
+    db.commit()
+    sql_string = open(WORK_DIRECTORY + SQL_DIRECTORY + 'insert_settings.sql', 'r').read()
+    db.execute(sql_string, [request.form['server_file_path']])
+    db.commit()
+    app.config['UPLOAD_FOLDER'] = request.form['server_file_path']
+    app.config['DOWNLOAD_FROM_DIRECTORY'] = request.form['server_file_path']
+
+
+    return redirect(url_for('mediaserver_settings'))
+
+
 """ ---------------- ---------------- List Parts ---------------- ---------------- """
 
 """
@@ -139,7 +179,7 @@ def mediaserver_file_list():
         items = cur.fetchall()
 
         #Get array of files and folders in the download directory
-        files_and_folders = os.listdir(DOWNLOAD_DIRECTORY)
+        files_and_folders = os.listdir(app.config['DOWNLOAD_FROM_DIRECTORY'])
         print("AAAAAAA")
         print(files_and_folders)
         print("AAAAAAA")
@@ -155,7 +195,7 @@ def mediaserver_file_list():
         files_creation_time = []
 
         for file in files_and_folders:
-            path_of_file = DOWNLOAD_DIRECTORY + "/" + file
+            path_of_file = app.config['DOWNLOAD_FROM_DIRECTORY'] + "/" + file
             print("last modified: %s" % time.ctime(os.path.getctime(path_of_file)))
             files_creation_time.append(time.ctime(os.path.getctime(path_of_file)))
             #print("created: %s" % time.ctime(os.path.getctime(file)))
@@ -206,8 +246,22 @@ def mediaserver_download_file():
         file = db.execute(sql_string,[request.form['file_to_download']])
         #db.commit()
         DownloadFileList = file.fetchall()
+        #print("AAAAAAA 5555555   AAAAA")
+        #print(DownloadFileList[0][2])
+        #a11 = str(DownloadFileList[0][2])
+        #print(a11)
+        #a12 = a11.split('.')
+        #print(a12)
+        abc = DownloadFileList[0][2].split('\\')
+        file_path = abc[0]
+        #print("file_path")
+        #print(file_path)
+        #print("AAAAAAA 5555555   AAAAA")
+
+        # file_path - filepath of the file to download
+        # DownloadFileList - file name of the file to download
         try:
-            return send_from_directory(DOWNLOAD_DIRECTORY, DownloadFileList[0][1], as_attachment=True)
+            return send_from_directory(file_path, DownloadFileList[0][1], as_attachment=True)
         except FileNotFoundError:
             abort(404)
 

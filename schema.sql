@@ -21,7 +21,7 @@ create table item (
 );
 
 
---Basic info about an item
+--File Upload/Download Data
 drop table if exists file;
 create table file (
   file_id integer primary key autoincrement,
@@ -29,6 +29,16 @@ create table file (
   file_path text,
   file_today_date text
 );
+--Settings Data
+drop table if exists settings;
+create table settings (
+  settings_id integer primary key autoincrement,
+  settings_uploadFilePath text
+);
+
+INSERT INTO settings (settings_uploadFilePath) VALUES ('c:/Users/Joseph/Downloads/Media_Server_Upload');
+
+
 
 --Item Condition for a particular item
 drop table if exists itemCondition;
