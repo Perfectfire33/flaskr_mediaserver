@@ -144,7 +144,7 @@ def mediaserver_settings():
 def mediaserver_save_settings():
     # add db stuff here to add the save location to db
     # or can use a text file to store the data
-    # then need to retrieve the save location for use
+    # then need to retrieve the save location foZr use
     db = get_db()
     sql_string = open(WORK_DIRECTORY + SQL_DIRECTORY + 'delete_settings.sql', 'r').read()
     db.execute(sql_string)

@@ -6,7 +6,7 @@
         <h2>File Name:</h2> {{ item.file_name }}
         <dl>
                 <dt><b>File path on server:</b> {{ item.file_path }}
-                <dt><b>File Today Date:</b> {{ item.file_today_date }}
+                <dt><b>File Upload Date:</b> {{ item.file_today_date }}
                 <dd>
         </dl>
         <form action="{{ url_for('mediaserver_download_file') }}" method=post class=add-item>
