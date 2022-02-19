@@ -592,7 +592,8 @@ def add_file():
         if file.filename == '':
             flash('No selected file')
             return redirect(request.url)
-        if file and allowed_file(file.filename):
+        #if file and allowed_file(file.filename):
+        if file:
 
 
             filename = secure_filename(file.filename)
