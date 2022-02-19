@@ -599,8 +599,8 @@ def add_file():
             filename = secure_filename(file.filename)
 
             # insert file path here (also includes file name)
-            #filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            filepath = app.config['UPLOAD_FOLDER'] + '/'
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            #filepath = app.config['UPLOAD_FOLDER'] + '/'
 
             # save the file to the OS' hard drive
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
