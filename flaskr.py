@@ -92,7 +92,8 @@ def login():
             session['logged_in'] = True
             flash('You were logged in')
             
-            return redirect(url_for('item_list'))
+            #return redirect(url_for('item_list'))
+            return render_template('dashboard.html')
     return render_template('login.html', error=error)
 
 #Logout
@@ -100,7 +101,8 @@ def login():
 def logout():
     session.pop('logged_in', None)
     flash('You were logged out')
-    return redirect(url_for('item_list'))
+    #return redirect(url_for('item_list'))
+    return render_template('dashboard.html')
 
 #Upload
 @app.route("/upload", methods=["POST"])
