@@ -27,6 +27,7 @@ create table file (
   file_id integer primary key autoincrement,
   file_name text,
   file_path text,
+  file_size integer,
   file_today_date text
 );
 --Settings Data

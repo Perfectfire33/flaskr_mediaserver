@@ -604,8 +604,15 @@ def add_file():
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             #filepath = app.config['UPLOAD_FOLDER'] + '/'
 
+
+
             # save the file to the OS' hard drive
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            #Get filesize (in bytes)
+            filesize = os.path.getsize(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            print("AAAA")
+            print(filesize)
+            print("AAAA")
 
             # Need to add file and file info to sqlite database
             db = get_db()
@@ -613,6 +620,7 @@ def add_file():
             sql_string = open(WORK_DIRECTORY + SQL_DIRECTORY + 'upload_file.sql', 'r').read()
             db.execute(sql_string, [filename,
                                     filepath,
+                                    filesize,
                                     date.today()
                                 ])
             db.commit()

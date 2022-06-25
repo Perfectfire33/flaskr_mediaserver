@@ -11,9 +11,6 @@
     </br>
     <a href="{{ url_for('dashboard') }}">Dashboard</a>
     </br>
-    <a href="{{ url_for('item_list') }}">Item List</a>
-    </br>
-    <a href="{{ url_for('add_item') }}">Add Item</a>
   {% endif %}
   </div>
   {% for message in get_flashed_messages() %}
