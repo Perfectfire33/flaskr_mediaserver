@@ -330,6 +330,9 @@ def add_file():
             #Get filesize (in bytes)
             filesize = os.path.getsize(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
+            #if filesize >= 1000:
+            #    displayedFilesize = filesize / 1000
+
             # Need to add file and file info to sqlite database
             db = get_db()
             #sql_string = open('c:/Users/Joseph/Documents/GitHub/flaskr_mediaserver/sql/upload_file.sql', 'r').read()
