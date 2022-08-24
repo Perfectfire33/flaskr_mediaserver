@@ -13,12 +13,13 @@ from flask_script import Manager, Server
 UPLOAD_FOLDER = 'c:/Users/Joseph/Downloads/Media_Server_Upload'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 DOWNLOAD_FROM_DIRECTORY = 'c:/Users/Joseph/Downloads/Media_Server_Upload'
-WORK_DIRECTORY = 'c:/Users/Joseph/Documents/GitHub/flaskr_mediaserver/'
-SQL_DIRECTORY = 'sql/'
+#WORK_DIRECTORY = 'c:/Users/Joseph/Documents/GitHub/flaskr_mediaserver/'
+WORK_DIRECTORY = os.path.dirname(__file__)
+SQL_DIRECTORY = '/sql/'
 
 # create our little application :)
 app = Flask(__name__)
-
+# dirname = os.path.dirname(__file__)
 app.config.from_object(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['DOWNLOAD_FROM_DIRECTORY'] = DOWNLOAD_FROM_DIRECTORY
@@ -133,6 +134,13 @@ def mediaserver_settings():
     print("default_upload_path")
     print(default_upload_path[0])
     print("default_upload_path")
+    print("work directory")
+    print(WORK_DIRECTORY)
+    print("work directory")
+    print("dirpath")
+    print(os.path.dirname(__file__))
+    print("dirpath")
+
     return render_template('mediaserver_settings.html', default_upload_path=default_upload_path)
 
 
@@ -178,9 +186,13 @@ def mediaserver_file_list():
         print("AAAAAAA")
         print(files_and_folders)
         print("AAAAAAA")
-        print("AAAAAAA")
-        print(files_and_folders)
-        print("AAAAAAA")
+
+        print("work directory")
+        print(WORK_DIRECTORY)
+        print("work directory")
+        print("dirpath")
+        print(os.path.dirname(__file__))
+        print("dirpath")
 
 
 
@@ -329,9 +341,6 @@ def add_file():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             #Get filesize (in bytes)
             filesize = os.path.getsize(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
-            #if filesize >= 1000:
-            #    displayedFilesize = filesize / 1000
 
             # Need to add file and file info to sqlite database
             db = get_db()
